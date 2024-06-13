@@ -108,49 +108,58 @@ function App() {
   useInterval (() => setLoadingTime(loadingTime + 1), loading ? 1000 : null)
 
   return(
-    <div className="px-8 py-8 h-screen w-screen bg-black text-white">
+    <div className="px-8 py-8 h-screen w-screen bg-zinc-50 text-black">
       <div className="flex flex-col gap-2 place-items-center pt-8">
-        <div className="mb-8 max-w-screen-lg">
-          <h1 className="font-medium text-2xl md:text-4xl">Hi there, Welcome to the Video Generation Platform</h1>
-          <h2 className="font-light text-lg md: text-2xl">Fill out some information below to generate video</h2>
+        <div className="mb-8 max-w-screen-lg flex flex-col place-items-center">
+          <h1 className="font-medium text-2xl md:text-4xl">Chima</h1>
+          <h2 className="font-medium text-lg md: text-2xl">Fill out some information below to generate video</h2>
         </div>
         <div className="mb-2">
           <p className="w-72 md:w-96 text-start font-bold text-lg">Company Info</p>
-          <p className="w-72 md:w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Enter your company name. For example, Rainforest</p>
+          <p className="w-72 md:w-96 text-start font-medium text-sm -mt-1 mb-2 text-zinc-600">Enter your company name. For example, Rainforest</p>
           <input
-            className="w-72 md:w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
+            className="w-72 md:w-96 bg-zinc-100 px-4 py-2 rounded border border-zinc-600"
             type="text"
             placeholder="Company Info"
             value={companyInfo}
             onChange={(e) => setCompanyInfo(e.target.value)}
-            required
+            required={true}
           />
         </div>
         <div className="mb-2">
           <p className="w-72 md:w-96 text-start font-bold text-lg">Product Info</p>
-          <p className="w-72 md:w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Enter your product name followed by some discription. For example, Rainforest is an AI image generation platform</p>
+          <p className="w-72 md:w-96 text-start font-medium text-sm -mt-1 mb-2 text-zinc-600">Enter your product name followed by some discription. For example, Rainforest is an AI image generation platform</p>
           <input
-            className="w-72 md:w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
+            className="w-72 md:w-96 bg-zinc-100 px-4 py-2 rounded border border-zinc-600"
             type="text"
             placeholder="Product Info"
             value={productInfo}
             onChange={(e) => setProductInfo(e.target.value)}
-            required
+            required={true}
           />
         </div>
         <div className="mb-2">
           <p className="w-72 md:w-96 text-start font-bold text-lg">Target Group Profile</p>
-          <p className="w-72 md:w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Target Group for your product. For example, Young Adults or Creative people</p>
+          <p className="w-72 md:w-96 text-start font-medium text-sm -mt-1 mb-2 text-zinc-600">Target Group for your product. For example, Young Adults or Creative people</p>
           <input
-            className="w-72 md:w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
+            className="w-72 md:w-96 bg-zinc-100 px-4 py-2 rounded border border-zinc-600"
             type="text"
             placeholder="Please enter Target Group of your product"
             value={targetGroup}
             onChange={(e) => setTargetGroup(e.target.value)}
-            required
+            required={true}
           />
         </div>
-        <button className="bg-zinc-200 text-zinc-600 px-4 py-2 rounded" onClick={generateVideo}>Generate Video</button>
+        <button 
+          disabled={(companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0) ? false : true} 
+          className="bg-zinc-600 text-zinc-100 px-4 py-2 rounded" 
+          onClick={generateVideo}
+        >
+            Generate Video
+        </button>
+        {!(companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0) &&
+          <p className="text-sm font-medium">Please fill in the details first</p>
+        }
       </div>
       <div className="flex flex-col gap-2 place-items-center pt-8 place-items-center">
         {loading && 
@@ -163,7 +172,7 @@ function App() {
         {downloadLink.length > 0 && 
           <div>
             <p className="font-bold text-xl md:text-3xl">You can download your video from below</p>
-            <button className="bg-zinc-200 text-zinc-600 px-4 py-2 rounded" onClick={() => download(downloadLink, fileName)}>Download</button>
+            <button className="bg-zinc-600 text-zinc-100 px-4 py-2 rounded" onClick={() => download(downloadLink, fileName)}>Download</button>
           </div>
         }
       </div>
