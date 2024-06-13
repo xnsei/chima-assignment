@@ -26,13 +26,15 @@ function App() {
     // TODO: Consider using OpenAI API for script generation
     const videoScript = `Hi there, ${companyInfo} has built an amazing product. ${productInfo}. ${companyInfo} is targetted towards ${targetGroup}. So if you feel excited, definitely give it a try!`;
 
+    const apiKey = import.meta.env.VITE_API_KEY;
+    console.log(apiKey);
     // generating headers and body for the request
     const options = {
       method: 'POST',
       headers: {
         accept: 'application/json',
         'content-type': 'application/json',
-        Authorization: '746ee48b3c0121d39170d3c01757066e'
+        Authorization: apiKey
       },
       body: JSON.stringify({
         test: 'true',
@@ -86,7 +88,7 @@ function App() {
   useInterval(async ()=> {
     const options = {
       method: 'GET',
-      headers: {accept: 'application/json', Authorization: '746ee48b3c0121d39170d3c01757066e'}
+      headers: {accept: 'application/json', Authorization: apiKey}
     };
     
     // send polling request to check video status
@@ -108,75 +110,78 @@ function App() {
   useInterval (() => setLoadingTime(loadingTime + 1), loading ? 1000 : null)
 
   return(
-    <div className="px-8 py-8 h-screen w-screen bg-zinc-50 text-black">
-      <div className="flex flex-col gap-2 place-items-center pt-8">
-        <div className="mb-8 max-w-screen-lg flex flex-col place-items-center">
-          <h1 className="font-medium text-2xl md:text-4xl">Chima</h1>
-          <h2 className="font-medium text-lg md: text-2xl">Fill out some information below to generate video</h2>
-        </div>
-        <div className="mb-2">
-          <p className="w-72 md:w-96 text-start font-bold text-lg">Company Info</p>
-          <p className="w-72 md:w-96 text-start font-medium text-sm -mt-1 mb-2 text-zinc-600">Enter your company name. For example, Rainforest</p>
-          <input
-            className="w-72 md:w-96 bg-zinc-100 px-4 py-2 rounded border border-zinc-600"
-            type="text"
-            placeholder="Company Info"
-            value={companyInfo}
-            onChange={(e) => setCompanyInfo(e.target.value)}
-            required={true}
-          />
-        </div>
-        <div className="mb-2">
-          <p className="w-72 md:w-96 text-start font-bold text-lg">Product Info</p>
-          <p className="w-72 md:w-96 text-start font-medium text-sm -mt-1 mb-2 text-zinc-600">Enter your product name followed by some discription. For example, Rainforest is an AI image generation platform</p>
-          <input
-            className="w-72 md:w-96 bg-zinc-100 px-4 py-2 rounded border border-zinc-600"
-            type="text"
-            placeholder="Product Info"
-            value={productInfo}
-            onChange={(e) => setProductInfo(e.target.value)}
-            required={true}
-          />
-        </div>
-        <div className="mb-2">
-          <p className="w-72 md:w-96 text-start font-bold text-lg">Target Group Profile</p>
-          <p className="w-72 md:w-96 text-start font-medium text-sm -mt-1 mb-2 text-zinc-600">Target Group for your product. For example, Young Adults or Creative people</p>
-          <input
-            className="w-72 md:w-96 bg-zinc-100 px-4 py-2 rounded border border-zinc-600"
-            type="text"
-            placeholder="Please enter Target Group of your product"
-            value={targetGroup}
-            onChange={(e) => setTargetGroup(e.target.value)}
-            required={true}
-          />
-        </div>
-        <button 
-          disabled={(companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0) ? false : true} 
-          className="bg-zinc-600 text-zinc-100 px-4 py-2 rounded" 
-          onClick={generateVideo}
-        >
-            Generate Video
-        </button>
-        {!(companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0) &&
-          <p className="text-sm font-medium">Please fill in the details first</p>
-        }
+    <div className="px-8 py-8 min-h-screen w-screen bg-gray-50 text-gray-900">
+    <div className="flex flex-col gap-4 items-center pt-8">
+      <div className="mb-8 max-w-screen-lg flex flex-col items-center">
+        <h1 className="font-semibold text-3xl md:text-5xl text-gray-800">Chima</h1>
+        <h2 className="font-medium text-xl md:text-3xl text-gray-600 mt-2">Fill out the information below to generate a video</h2>
       </div>
-      <div className="flex flex-col gap-2 place-items-center pt-8 place-items-center">
-        {loading && 
-          <div>
-            <p className="font-bold text-xl md:text-3xl">Your video is being generated....</p>
-            <p className="font-bold text-lg md:text-xl">Total time taken: {loadingTime} s</p>
-            <p className="text-lg md:text-xl">This usually takes around 3-5 minutes.</p>
-          </div>
-        }
-        {downloadLink.length > 0 && 
-          <div>
-            <p className="font-bold text-xl md:text-3xl">You can download your video from below</p>
-            <button className="bg-zinc-600 text-zinc-100 px-4 py-2 rounded" onClick={() => download(downloadLink, fileName)}>Download</button>
-          </div>
-        }
+      <div className="mb-4 w-full max-w-md">
+        <label className="block text-start font-semibold text-lg text-gray-800" htmlFor="company-info">Company Info</label>
+        <p className="text-start font-medium text-sm text-gray-500 mb-2">Enter your company name. For example, Rainforest</p>
+        <input
+          id="company-info"
+          className="w-full bg-white px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="text"
+          placeholder="Company Info"
+          value={companyInfo}
+          onChange={(e) => setCompanyInfo(e.target.value)}
+          required
+        />
       </div>
+      <div className="mb-4 w-full max-w-md">
+        <label className="block text-start font-semibold text-lg text-gray-800" htmlFor="product-info">Product Info</label>
+        <p className="text-start font-medium text-sm text-gray-500 mb-2">Enter your product name followed by a description. For example, Rainforest is an AI image generation platform</p>
+        <input
+          id="product-info"
+          className="w-full bg-white px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="text"
+          placeholder="Product Info"
+          value={productInfo}
+          onChange={(e) => setProductInfo(e.target.value)}
+          required
+        />
+      </div>
+      <div className="mb-6 w-full max-w-md">
+        <label className="block text-start font-semibold text-lg text-gray-800" htmlFor="target-group">Target Group Profile</label>
+        <p className="text-start font-medium text-sm text-gray-500 mb-2">Target Group for your product. For example, Young Adults or Creative people</p>
+        <input
+          id="target-group"
+          className="w-full bg-white px-4 py-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="text"
+          placeholder="Please enter the Target Group of your product"
+          value={targetGroup}
+          onChange={(e) => setTargetGroup(e.target.value)}
+          required
+        />
+      </div>
+      <button
+        disabled={!(companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0)}
+        className={`px-6 py-2 rounded font-medium ${companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0 ? 'bg-blue-600 text-white hover:bg-blue-700' : 'bg-gray-400 text-gray-200 cursor-not-allowed'}`}
+        onClick={generateVideo}
+      >
+        Generate Video
+      </button>
+      {!(companyInfo.length > 0 && productInfo.length > 0 && targetGroup.length > 0) &&
+        <p className="text-sm font-medium text-red-500 mt-2">Please fill in all the details first</p>
+      }
     </div>
+    <div className="flex flex-col items-center pt-8">
+      {loading && 
+        <div className="text-center">
+          <p className="font-bold text-2xl md:text-3xl">Your video is being generated....</p>
+          <p className="font-medium text-lg md:text-xl mt-2">Total time taken: {loadingTime} s</p>
+          <p className="text-lg md:text-xl text-gray-600 mt-1">This usually takes around 3-5 minutes.</p>
+        </div>
+      }
+      {downloadLink.length > 0 && 
+        <div className="text-center">
+          <p className="font-bold text-2xl md:text-3xl">You can download your video below</p>
+          <button className="mt-4 bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700" onClick={() => download(downloadLink, fileName)}>Download</button>
+        </div>
+      }
+    </div>
+  </div>
   )
 }
 
