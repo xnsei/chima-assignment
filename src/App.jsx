@@ -1,23 +1,32 @@
 import { useEffect, useState } from "react"
-import { useInterval } from "./hooks/useInterval";
 import useDownloader from 'react-use-downloader';
+import { useInterval } from "./hooks/useInterval";
 
 function App() {
+  // state variables for all the user inputs
   const [companyInfo, setCompanyInfo] = useState("");
   const [productInfo, setProductInfo] = useState("");
   const [targetGroup, setTargetGroup] = useState("");
 
+  // state variables to store video id, video download link, etc.
   const [videoId, setVideoId] = useState("");
   const [delay, setDelay] = useState(null);
   const [loading, setLoading] = useState(false);
   const [downloadLink, setDownloadLink] = useState("");
+  const [loadingTime, setLoadingTime] = useState(1);
 
-  const { size, elapsed, percentage, download, cancel, error, isInProgress } = useDownloader();
+  // download function from the useDownloader hook
+  const { download } = useDownloader();
   const fileName = "video.mp4";
 
-  const generateVideo = async () => {
-    const outputString = `Hi there, ${companyInfo} has built an amazing product. ${productInfo}. This product is targetted towards ${targetGroup} people. So if you fall into this category, you should definitely check it out!`;
 
+  // function to send initial video generation request
+  const generateVideo = async () => {
+    // generate script for the video
+    // TODO: Consider using OpenAI API for script generation
+    const videoScript = `Hi there, ${companyInfo} has built an amazing product. ${productInfo}. ${companyInfo} is targetted towards ${targetGroup}. So if you feel excited, definitely give it a try!`;
+
+    // generating headers and body for the request
     const options = {
       method: 'POST',
       headers: {
@@ -37,7 +46,7 @@ function App() {
                 longBackgroundContentMatchMode: 'trim'
               }
             },
-            scriptText: outputString,
+            scriptText: videoScript,
             avatar: 'anna_costume1_cameraA',
             background: 'open_office'
           }
@@ -48,7 +57,8 @@ function App() {
     };
 
     setLoading(true);
-    
+
+    // send initial video generation request
     await fetch('https://api.synthesia.io/v2/videos', options)
       .then(response => response.json())
       .then(response => setVideoId(response.id))
@@ -58,10 +68,13 @@ function App() {
       });
   }
 
+  // polling is in progress when delay is not null
+  // start polling when videoId is set
   useEffect( () => {
     if(videoId.length > 0)setDelay(10000)
   }, [videoId])
 
+  // stop polling when downloadLink is set
   useEffect(() => {
     if(downloadLink.length > 0){
       setDelay(null)
@@ -69,12 +82,14 @@ function App() {
     }
   }, [downloadLink])
 
+  // polling for video status using custom useInterval hook
   useInterval(async ()=> {
     const options = {
       method: 'GET',
       headers: {accept: 'application/json', Authorization: '746ee48b3c0121d39170d3c01757066e'}
     };
     
+    // send polling request to check video status
     await fetch(`https://api.synthesia.io/v2/videos/${videoId}`, options)
       .then(response => response.json())
       .then(response => {
@@ -90,14 +105,20 @@ function App() {
       });
   }, delay)
 
+  useInterval (() => setLoadingTime(loadingTime + 1), loading ? 1000 : null)
+
   return(
-    <div className="h-screen w-screen bg-black text-white">
+    <div className="px-8 py-8 h-screen w-screen bg-black text-white">
       <div className="flex flex-col gap-2 place-items-center pt-8">
+        <div className="mb-8 max-w-screen-lg">
+          <h1 className="font-medium text-2xl md:text-4xl">Hi there, Welcome to the Video Generation Platform</h1>
+          <h2 className="font-light text-lg md: text-2xl">Fill out some information below to generate video</h2>
+        </div>
         <div className="mb-2">
-          <p className="w-96 text-start font-bold text-lg">Company Info</p>
-          <p className="w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Enter your company name. For example, Company ABC</p>
+          <p className="w-72 md:w-96 text-start font-bold text-lg">Company Info</p>
+          <p className="w-72 md:w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Enter your company name. For example, Rainforest</p>
           <input
-            className="w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
+            className="w-72 md:w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
             type="text"
             placeholder="Company Info"
             value={companyInfo}
@@ -106,10 +127,10 @@ function App() {
           />
         </div>
         <div className="mb-2">
-          <p className="w-96 text-start font-bold text-lg">Product Info</p>
-          <p className="w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Enter your product name followed by some discription. For example, Product XYZ, it helps you with XYZ tasks</p>
+          <p className="w-72 md:w-96 text-start font-bold text-lg">Product Info</p>
+          <p className="w-72 md:w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Enter your product name followed by some discription. For example, Rainforest is an AI image generation platform</p>
           <input
-            className="w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
+            className="w-72 md:w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
             type="text"
             placeholder="Product Info"
             value={productInfo}
@@ -118,10 +139,10 @@ function App() {
           />
         </div>
         <div className="mb-2">
-          <p className="w-96 text-start font-bold text-lg">Target Group Profile</p>
-          <p className="w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Target Group for your product. For example, Young Adults</p>
+          <p className="w-72 md:w-96 text-start font-bold text-lg">Target Group Profile</p>
+          <p className="w-72 md:w-96 text-start font-light text-sm -mt-1 mb-2 text-zinc-300">Target Group for your product. For example, Young Adults or Creative people</p>
           <input
-            className="w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
+            className="w-72 md:w-96 bg-zinc-800 px-4 py-2 rounded border border-zinc-600"
             type="text"
             placeholder="Please enter Target Group of your product"
             value={targetGroup}
@@ -131,9 +152,21 @@ function App() {
         </div>
         <button className="bg-zinc-200 text-zinc-600 px-4 py-2 rounded" onClick={generateVideo}>Generate Video</button>
       </div>
-      {loading && <p className="font-bold text-3xl">Your video is being generated....</p>}
-      {downloadLink.length > 0 && <p className="font-bold text-3xl">You can download your video from below</p>}
-      {downloadLink.length > 0 && <button className="bg-zinc-200 text-zinc-600 px-4 py-2 rounded" onClick={() => download(downloadLink, fileName)}>Download</button>}
+      <div className="flex flex-col gap-2 place-items-center pt-8 place-items-center">
+        {loading && 
+          <div>
+            <p className="font-bold text-xl md:text-3xl">Your video is being generated....</p>
+            <p className="font-bold text-lg md:text-xl">Total time taken: {loadingTime} s</p>
+            <p className="text-lg md:text-xl">This usually takes around 3-5 minutes.</p>
+          </div>
+        }
+        {downloadLink.length > 0 && 
+          <div>
+            <p className="font-bold text-xl md:text-3xl">You can download your video from below</p>
+            <button className="bg-zinc-200 text-zinc-600 px-4 py-2 rounded" onClick={() => download(downloadLink, fileName)}>Download</button>
+          </div>
+        }
+      </div>
     </div>
   )
 }
