@@ -86,6 +86,7 @@ function App() {
 
   // polling for video status using custom useInterval hook
   useInterval(async ()=> {
+    const apiKey = import.meta.env.VITE_API_KEY;
     const options = {
       method: 'GET',
       headers: {accept: 'application/json', Authorization: apiKey}
